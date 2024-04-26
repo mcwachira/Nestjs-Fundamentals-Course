@@ -14,6 +14,10 @@ export class Coffee {
 
   //@Column('json', {nullable: true}) // makes the values optional and stored the values as json
   @JoinTable()
-  @ManyToMany( type => Flavor, flavor => flavor.coffees)
-  flavors: string[];
+  @ManyToMany( type => Flavor, flavor => flavor.coffees,
+      {
+        cascade: true, // flavours will be added automatically when the coffee is created
+      },
+)
+  flavors: Flavor[];
 }
