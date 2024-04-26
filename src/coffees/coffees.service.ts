@@ -1,47 +1,58 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {HttpException, HttpStatus, Injectable, NotFoundException} from '@nestjs/common';
 import { Coffee } from './entities/coffee.entity';
 import { CreateCoffeeDto } from "./dto/create-coffee.dto";
+import {InjectRepository} from "@nestjs/typeorm";
+import {Repository} from "typeorm";
+import {UpdateCoffeeDto} from "./dto/update-coffee.dto";
 
 @Injectable()
 export class CoffeesService {
-  private coffees: Coffee[] = [
-    {
-      id: 1,
-      name: 'Shipwreck Roast',
-      brand: 'Buddy Brew',
-      flavors: ['Chocolate', 'Vanilla'],
-    },
-  ];
+constructor(
+    @InjectRepository(Coffee)
+    private readonly coffeeRepository: Repository<Coffee>
+    
+) {
+}
 
-  findAll() {
-    return this.coffees;
+  async findAll() {
+    return await this.coffeeRepository.find();
   }
 
-  findOne(id: number) {
-    const coffee = this.coffees.find((coffee) => coffee.id === +id);
+  async findOne(id: number) {
+    const coffee = await this.coffeeRepository.findOneBy({id: id,});
     if (!coffee) {
       throw new HttpException(
-        `Coffee 3${id}  not found.`,
+        `Coffee with ${id}  not found.`,
         HttpStatus.NOT_FOUND,
       );
     }
+
+    return coffee
   }
 
-  create(createCoffeeDto: any) {
-    this.coffees.push(createCoffeeDto);
-    return createCoffeeDto;
+  async create(createCoffeeDto: CreateCoffeeDto) {
+    const coffee = this.coffeeRepository.create(createCoffeeDto);
+    return  await this.coffeeRepository.save(coffee);
   }
 
-  // update(id: string, updateCoffeeDto: any) {
-  //   const existingCoffee = this.findOne(id);
-  //   if (existingCoffee) {
-  //   }
-  // }
 
-  remove(id: number) {
-    const coffeeIndex = this.coffees.findIndex((item) => item.id === id);
-    if (coffeeIndex >= 0) {
-      this.coffees.splice(coffeeIndex, 1);
+  async update(id:string, updateCoffeeDto: UpdateCoffeeDto) {
+  //preloads creates a new entity based on the object passed into it. check to see if entity exist and if so retrieves it
+  const coffee = await this.coffeeRepository.preload({
+    id: +id,
+    ...updateCoffeeDto,
+  })
+
+    if(!coffee){
+      throw new NotFoundException(`Coffee # ${id} not found`)
     }
+    return this.coffeeRepository.save(coffee)
+  }
+
+
+  async remove(id: number) {
+    const coffee = await this.findOne(id);
+
+    return this.coffeeRepository.remove(coffee);
   }
 }
