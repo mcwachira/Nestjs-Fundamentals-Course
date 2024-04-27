@@ -5,6 +5,7 @@ import { CoffeesController } from './coffees/coffees.controller';
 import { CoffeesService } from './coffees/coffees.service';
 import { CoffeesModule } from './coffees/coffees.module';
 import {TypeOrmModule} from "@nestjs/typeorm";
+import { CoffeeRatingModule } from './coffee-rating/coffee-rating.module';
 
 @Module({
   imports: [CoffeesModule, TypeOrmModule.forRoot({
@@ -17,7 +18,7 @@ import {TypeOrmModule} from "@nestjs/typeorm";
     autoLoadEntities:true,
     synchronize:true, //lets type orm generate a sql table automatically dev only
 
-  })],
+  }), CoffeeRatingModule],
   controllers: [AppController],
   providers: [AppService],
 })
