@@ -12,7 +12,7 @@ import {TypeOrmModule} from "@nestjs/typeorm";
     host:'localhost',
     port:5432,
     username:'postgres',
-    password:'newPassword',
+    password:'pass123',
     database:'postgres',
     autoLoadEntities:true,
     synchronize:true, //lets type orm generate a sql table automatically dev only
